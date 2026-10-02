@@ -276,3 +276,66 @@ export async function postFlutterOfflineBatch(payload: BatchManifestPayload) {
   }
   return await res.json();
 }
+
+// --- Overview Dashboard Schemas ---
+export interface HeaderAlerts {
+  critical_shortages: number;
+  active_breaches: number;
+  total_alerts: number;
+  summary: string;
+}
+
+export interface KpiMetric {
+  value: number;
+  unit: string;
+  change_pct: number;
+  comparison_text: string;
+  sparkline: number[];
+}
+
+export interface DashboardKpis {
+  total_inventory: KpiMetric;
+  daily_collection_rate: KpiMetric;
+  pending_requests: KpiMetric;
+}
+
+export interface SupplyDemandPoint {
+  date: string;
+  supply_units: number;
+  demand_units: number;
+  supply?: number;
+  demand?: number;
+}
+
+export interface PriorityRequestItem {
+  id: number | string;
+  code: string;
+  code_bg?: string;
+  facility: string;
+  blood_type: string;
+  bloodType?: string;
+  amount: string;
+  units: number;
+  status: "CRITICAL" | "URGENT" | "STABLE" | string;
+  badge_style?: string;
+}
+
+export interface LiveActivityItem {
+  id: string;
+  type: "received" | "transit" | "breach" | "mobile_sync" | string;
+  title: string;
+  text: string;
+  time: string;
+  timestamp?: string;
+}
+
+export interface OverviewSummaryResponse {
+  header_alerts: HeaderAlerts;
+  kpis: DashboardKpis;
+  supply_vs_demand: SupplyDemandPoint[];
+  inventory_by_type: Record<string, number>;
+  priority_requests: PriorityRequestItem[];
+  live_activity: LiveActivityItem[];
+  cached?: boolean;
+}
+
