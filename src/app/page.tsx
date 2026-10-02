@@ -564,16 +564,16 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-[#2daa8f]/15 bg-[#030e0a] py-6 text-xs text-[#6e8d81]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <Image
               src="/abis_logo.png"
               alt="ABIS - Adaptive Blood Infrastructure System"
-              width={160}
-              height={60}
-              className="h-9 sm:h-10 w-auto object-contain"
+              width={280}
+              height={150}
+              className="h-16 sm:h-20 md:h-22 w-auto object-contain"
             />
-            <span className="hidden sm:inline-block text-[#2daa8f]/30">|</span>
-            <p className="text-[11px] sm:text-xs text-[#6e8d81] tracking-wide text-center sm:text-left">
+            <span className="hidden sm:inline-block text-[#2daa8f]/30 text-lg">|</span>
+            <p className="text-xs sm:text-sm text-[#8baea1] tracking-wide text-center sm:text-left">
               Adaptive Blood Infrastructure System · Terumo BCT Africa Hackathon 2026
             </p>
           </div>

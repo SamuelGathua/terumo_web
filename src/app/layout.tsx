@@ -35,6 +35,10 @@ export default function RootLayout({
       lang="en"
       className={`${manrope.variable} ${dmSans.variable} dark antialiased`}
     >
+      <head>
+        <link rel="preload" as="image" href="/abis_logo.png" type="image/png" />
+        <link rel="preload" as="image" href="/landing_page.gif" type="image/gif" />
+      </head>
       <body className="bg-[#051510] text-[#e2ece8] min-h-screen selection:bg-[#e02e48] selection:text-white font-sans">
         <PreferencesProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
