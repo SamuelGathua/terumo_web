@@ -3,7 +3,11 @@
  * Connects Next.js frontend to FastAPI backend with graceful fallback simulation.
  */
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://terumobackend-production.up.railway.app"
+).replace(/\/$/, "");
 
 export interface DemandPoint {
   date: string;
@@ -163,10 +167,35 @@ export async function predictRetention(payload: RetentionPredictionRequest): Pro
 }
 
 export async function fetchRebalancingSuggestions(): Promise<RebalanceResponse> {
+  const fallbackTransfers: RebalanceSuggestion[] = [
+    {
+      from_facility_id: "REGIONAL-HUB-01",
+      from_facility_name: "Nairobi Regional Blood Transfusion Center",
+      to_facility_id: "CLINIC-MOMBASA-03",
+      to_facility_name: "Coast General Teaching & Referral Hospital",
+      recommended_units: 45,
+      urgency: "CRITICAL",
+      reason: "Deficit facility at 22.5% capacity. Surplus hub holds 2,400 units (80% capacity)."
+    }
+  ];
+
   try {
     const res = await fetch(`${API_BASE_URL}/rebalance/suggestions`, { next: { revalidate: 60 } });
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      const transfers = (Array.isArray(data.recommended_transfers) && data.recommended_transfers.length > 0)
+        ? data.recommended_transfers
+        : (Array.isArray(data.suggestions) && data.suggestions.length > 0)
+        ? data.suggestions
+        : fallbackTransfers;
+
+      return {
+        network_status: data.network_status || data.status || "rebalancing_computed",
+        active_shortage_facilities: data.active_shortage_facilities ?? 1,
+        active_surplus_facilities: data.active_surplus_facilities ?? 1,
+        recommended_transfers: transfers,
+        cached: data.cached ?? true,
+      };
     }
   } catch (err) {
     console.warn("FastAPI rebalance suggestions error, using fallback:", err);
@@ -176,17 +205,7 @@ export async function fetchRebalancingSuggestions(): Promise<RebalanceResponse> 
     network_status: "rebalancing_computed",
     active_shortage_facilities: 1,
     active_surplus_facilities: 1,
-    recommended_transfers: [
-      {
-        from_facility_id: "REGIONAL-HUB-01",
-        from_facility_name: "Nairobi Regional Blood Transfusion Center",
-        to_facility_id: "CLINIC-MOMBASA-03",
-        to_facility_name: "Coast General Teaching & Referral Hospital",
-        recommended_units: 45,
-        urgency: "CRITICAL",
-        reason: "Deficit facility at 22.5% capacity. Surplus hub holds 2,400 units (80% capacity)."
-      }
-    ],
+    recommended_transfers: fallbackTransfers,
     cached: true
   };
 }
@@ -211,4 +230,49 @@ export async function fetchDonors(limit: number = 20): Promise<DonorRecord[]> {
     { donor_id: "c2d3e4f5-106", blood_type: "O+", tenure_days: 1200, recency_days: 35, total_donations: 16, retention_probability: 0.9991, retention_status: 1, syphilis_s_co_ratio: 0.29, created_at: "2023-01-10T08:00:00Z" },
     { donor_id: "d5e6f7a8-107", blood_type: "A-", tenure_days: 240, recency_days: 195, total_donations: 1, retention_probability: 0.2310, retention_status: 0, syphilis_s_co_ratio: 0.50, created_at: "2025-06-01T13:10:00Z" }
   ];
+}
+
+// --- SWR Global Fetcher with JSON response handling ---
+export const fetcher = async <T = unknown>(url: string): Promise<T> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const error = new Error(errorData.detail || `Request failed with status ${res.status}`);
+    throw error;
+  }
+  return res.json();
+};
+
+export interface BarcodeRecordPayload {
+  barcode: string;
+  blood_type: string;
+  product_type: string;
+  expiry_date?: string;
+  facility?: string;
+  temperature?: number;
+  status?: string;
+  is_agitated?: boolean;
+}
+
+export interface BatchManifestPayload {
+  batch_id: string;
+  field_lead: string;
+  location: string;
+  timestamp: string;
+  temperature: number;
+  cold_chain_breach: boolean;
+  barcode_records: BarcodeRecordPayload[];
+}
+
+export async function postFlutterOfflineBatch(payload: BatchManifestPayload) {
+  const res = await fetch(`${API_BASE_URL}/events/batch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`Batch upload failed: ${res.status} ${errText}`);
+  }
+  return await res.json();
 }
