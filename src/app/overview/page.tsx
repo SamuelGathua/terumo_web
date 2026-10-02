@@ -3,7 +3,6 @@
 import * as React from "react";
 import useSWR from "swr";
 import Link from "next/link";
-import { format } from "date-fns";
 import {
   AlertTriangle,
   ArrowRight,
@@ -18,19 +17,46 @@ import { SupplyDemandChart } from "@/components/SupplyDemandChart";
 import { BloodTypeBars } from "@/components/BloodTypeBars";
 import { PriorityRequestsTable } from "@/components/PriorityRequestsTable";
 import { LiveActivityFeed } from "@/components/LiveActivityFeed";
+import { usePreferences } from "@/context/PreferencesContext";
+
+const KENYA_REGIONS = [
+  "National View",
+  "Coast",
+  "North Eastern",
+  "Eastern",
+  "Central",
+  "Rift Valley",
+  "Western",
+  "Nyanza",
+  "Nairobi",
+];
 
 export default function OverviewPage() {
-  const [selectedRegion, setSelectedRegion] = React.useState("East Africa");
+  const [selectedRegion, setSelectedRegion] = React.useState("National View");
   const [regionDropdown, setRegionDropdown] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const { preferences } = usePreferences();
+  const firstName = preferences?.displayName?.trim()?.split(" ")[0] || "Amina";
 
   React.useEffect(() => {
-    setMounted(true);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setRegionDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Task 2.1: Global Dashboard SWR Fetch from Redis-cached FastAPI endpoint
-  const swrUrl = `${API_BASE_URL}/overview/summary`;
-  const { data, error, isLoading, isValidating } = useSWR<OverviewSummaryResponse>(
+  // Dashboard SWR Fetch with reactive regional query parameter
+  const swrUrl = React.useMemo(() => {
+    if (selectedRegion && selectedRegion !== "National View") {
+      return `${API_BASE_URL}/overview/summary?region=${encodeURIComponent(selectedRegion)}`;
+    }
+    return `${API_BASE_URL}/overview/summary`;
+  }, [selectedRegion]);
+
+  const { data, isLoading, isValidating } = useSWR<OverviewSummaryResponse>(
     swrUrl,
     fetcher,
     {
@@ -40,15 +66,6 @@ export default function OverviewPage() {
     }
   );
 
-  // Task 2.2: Dynamic date formatting with date-fns
-  const todayDateString = React.useMemo(() => {
-    try {
-      return format(new Date(), "EEEE, d MMMM").toUpperCase();
-    } catch {
-      return "TODAY";
-    }
-  }, []);
-
   // Full-page loading skeleton mimicking layout while initial fetch occurs
   if (isLoading && !data) {
     return (
@@ -56,11 +73,10 @@ export default function OverviewPage() {
         {/* Header Skeleton */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-2">
-            <Skeleton className="h-3 w-32 bg-slate-200" />
             <Skeleton className="h-8 w-64 bg-slate-200" />
             <Skeleton className="h-4 w-72 bg-slate-200" />
           </div>
-          <Skeleton className="h-9 w-32 rounded-xl bg-slate-200" />
+          <Skeleton className="h-9 w-36 rounded-xl bg-slate-200" />
         </div>
 
         {/* Alert Banner Skeleton */}
@@ -103,27 +119,16 @@ export default function OverviewPage() {
       {/* 1. Page Header Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              suppressHydrationWarning
-              className="text-[11px] font-bold text-slate-400 tracking-widest uppercase block font-mono"
-            >
-              {mounted ? todayDateString : "TODAY"}
-            </span>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading">
+              Good morning, {firstName}
+            </h1>
             {isValidating && (
               <span title="Validating live dashboard with Redis" className="inline-flex">
-                <RefreshCw className="w-3 h-3 text-slate-400 animate-spin" />
-              </span>
-            )}
-            {data?.cached && (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">
-                REDIS CACHED
+                <RefreshCw className="w-3.5 h-3.5 text-slate-400 animate-spin" />
               </span>
             )}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading mt-0.5">
-            Good morning, Amina
-          </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Here&apos;s what is happening across your regional blood infrastructure today.
           </p>
@@ -132,7 +137,7 @@ export default function OverviewPage() {
         {/* Region Selector */}
         <div className="flex items-center gap-2 relative">
           <span className="text-xs text-slate-400 font-medium">Region</span>
-          <div className="relative">
+          <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setRegionDropdown(!regionDropdown)}
               className="bg-white border border-slate-200/90 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs flex items-center gap-2 hover:border-slate-300 transition-colors cursor-pointer"
@@ -141,15 +146,19 @@ export default function OverviewPage() {
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
             {regionDropdown && (
-              <div className="absolute right-0 mt-1.5 w-36 bg-white border border-slate-200 rounded-xl shadow-lg p-1 z-30 text-xs">
-                {["East Africa", "Central Hub", "Coastal Region", "Rift Valley"].map((r) => (
+              <div className="absolute right-0 mt-1.5 w-44 bg-white border border-slate-200 rounded-xl shadow-lg p-1 z-30 text-xs max-h-64 overflow-y-auto">
+                {KENYA_REGIONS.map((r) => (
                   <button
                     key={r}
                     onClick={() => {
                       setSelectedRegion(r);
                       setRegionDropdown(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+                    className={`w-full text-left px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      selectedRegion === r
+                        ? "bg-emerald-50 text-emerald-800 font-semibold"
+                        : "text-slate-700 hover:bg-slate-50 font-medium"
+                    }`}
                   >
                     {r}
                   </button>
@@ -212,7 +221,7 @@ export default function OverviewPage() {
       )}
 
       {/* 3. Three KPI Metric Cards with Recharts Mini Sparklines (Task 2.3) */}
-      <OverviewKpiCards kpis={data?.kpis!} />
+      {data?.kpis && <OverviewKpiCards kpis={data.kpis} />}
 
       {/* 4. Middle Row: Supply vs. Demand Chart & Inventory by Blood Type (Tasks 2.4 & 2.5) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

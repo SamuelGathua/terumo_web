@@ -1,358 +1,556 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import * as React from "react";
 import {
-  BrainCircuit,
-  CheckCircle,
+  Users,
+  AlertTriangle,
   MessageSquare,
   PhoneCall,
-  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
-import { StatusBadge } from "@/components/StatusBadge";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { OutreachModal } from "@/components/OutreachModal";
+import { RfmSimulator } from "@/components/RfmSimulator";
+import { Card } from "@/components/ui/card";
 import {
-  fetchDonors,
-  predictRetention,
-  DonorRecord,
-  RetentionPredictionResponse,
-} from "@/lib/api";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { fetchDonors, DonorRecord } from "@/lib/api";
+
+export interface DonorRosterItem {
+  id: string;
+  name: string;
+  initials: string;
+  bloodType: string;
+  recencyDays: number;
+  lastDonation: string;
+  retentionProb: number;
+  riskTier: "HIGH RISK" | "AT RISK" | "ENGAGED";
+  totalDonations: number;
+  tenureDays: number;
+}
+
+// Initial realistic roster adhering to user screenshot
+const INITIAL_ROSTER: DonorRosterItem[] = [
+  {
+    id: "DONOR-001",
+    name: "Grace Wanjiku",
+    initials: "GW",
+    bloodType: "O+",
+    recencyDays: 425,
+    lastDonation: "14 mos ago",
+    retentionProb: 18,
+    riskTier: "HIGH RISK",
+    totalDonations: 3,
+    tenureDays: 780,
+  },
+  {
+    id: "DONOR-002",
+    name: "Peter Otieno",
+    initials: "PO",
+    bloodType: "B+",
+    recencyDays: 270,
+    lastDonation: "9 mos ago",
+    retentionProb: 26,
+    riskTier: "HIGH RISK",
+    totalDonations: 4,
+    tenureDays: 920,
+  },
+  {
+    id: "DONOR-003",
+    name: "Leah Njeri",
+    initials: "LN",
+    bloodType: "A-",
+    recencyDays: 150,
+    lastDonation: "5 mos ago",
+    retentionProb: 48,
+    riskTier: "AT RISK",
+    totalDonations: 5,
+    tenureDays: 540,
+  },
+  {
+    id: "DONOR-004",
+    name: "David Kamau",
+    initials: "DK",
+    bloodType: "O-",
+    recencyDays: 21,
+    lastDonation: "3 weeks ago",
+    retentionProb: 76,
+    riskTier: "ENGAGED",
+    totalDonations: 12,
+    tenureDays: 1100,
+  },
+  {
+    id: "DONOR-005",
+    name: "Mary Achieng",
+    initials: "MA",
+    bloodType: "AB+",
+    recencyDays: 14,
+    lastDonation: "2 weeks ago",
+    retentionProb: 91,
+    riskTier: "ENGAGED",
+    totalDonations: 18,
+    tenureDays: 1420,
+  },
+  {
+    id: "DONOR-006",
+    name: "John Mwangi",
+    initials: "JM",
+    bloodType: "O+",
+    recencyDays: 330,
+    lastDonation: "11 mos ago",
+    retentionProb: 32,
+    riskTier: "HIGH RISK",
+    totalDonations: 2,
+    tenureDays: 610,
+  },
+  {
+    id: "DONOR-007",
+    name: "Sarah Kiprop",
+    initials: "SK",
+    bloodType: "A+",
+    recencyDays: 60,
+    lastDonation: "2 mos ago",
+    retentionProb: 64,
+    riskTier: "AT RISK",
+    totalDonations: 7,
+    tenureDays: 850,
+  },
+  {
+    id: "DONOR-008",
+    name: "Brian Ochieng",
+    initials: "BO",
+    bloodType: "B-",
+    recencyDays: 28,
+    lastDonation: "4 weeks ago",
+    retentionProb: 85,
+    riskTier: "ENGAGED",
+    totalDonations: 14,
+    tenureDays: 1230,
+  },
+  {
+    id: "DONOR-009",
+    name: "Faith Mutua",
+    initials: "FM",
+    bloodType: "O+",
+    recencyDays: 390,
+    lastDonation: "13 mos ago",
+    retentionProb: 21,
+    riskTier: "HIGH RISK",
+    totalDonations: 2,
+    tenureDays: 450,
+  },
+  {
+    id: "DONOR-010",
+    name: "Kevin Koech",
+    initials: "KK",
+    bloodType: "A-",
+    recencyDays: 35,
+    lastDonation: "5 weeks ago",
+    retentionProb: 73,
+    riskTier: "ENGAGED",
+    totalDonations: 9,
+    tenureDays: 980,
+  },
+];
+
+// Helper to format days into clean human readable strings
+function formatRecency(days: number): string {
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) {
+    const weeks = Math.round(days / 7);
+    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+  }
+  const months = Math.round(days / 30.4);
+  return `${months} ${months === 1 ? "mo" : "mos"} ago`;
+}
+
+// Donut Chart Distribution Data
+const DONOR_HEALTH_DATA = [
+  { name: "Engaged", value: 68, color: "#108f75" },
+  { name: "At risk", value: 18, color: "#f59e0b" },
+  { name: "High risk", value: 14, color: "#ef4444" },
+];
 
 export default function DonorsPage() {
-  const [donors, setDonors] = useState<DonorRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterRisk, setFilterRisk] = useState<string>("ALL");
+  const { toast } = useToast();
+  const [roster, setRoster] = React.useState<DonorRosterItem[]>(INITIAL_ROSTER);
+  const [selectedBloodType, setSelectedBloodType] = React.useState<string>("ALL");
 
-  // Interactive AI Simulator State
-  const [recencyDays, setRecencyDays] = useState<number>(45);
-  const [frequencyTotal, setFrequencyTotal] = useState<number>(6);
-  const [tenureDays, setTenureDays] = useState<number>(365);
-  const [simulating, setSimulating] = useState(false);
-  const [simulationResult, setSimulationResult] = useState<RetentionPredictionResponse | null>({
-    retention_probability: 0.942,
-    retention_status: 1,
-    risk_tier: "LOW_RISK",
-    recommended_action: "Donor actively engaged. Dispatch scheduled SMS reminder for upcoming mobile drive.",
-  });
-
-  // Action feedback state
-  const [actionDone, setActionDone] = useState<{ [key: string]: string }>({});
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await fetchDonors(30);
-        setDonors(data);
-      } catch (err) {
-        console.error("Donors fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+  // Non-critical safe donors = 68% Engaged + 18% At risk = 86% safe (100% - 14% High risk)
+  const safePercentage = React.useMemo(() => {
+    const engaged = DONOR_HEALTH_DATA.find((d) => d.name === "Engaged")?.value || 0;
+    const atRisk = DONOR_HEALTH_DATA.find((d) => d.name === "At risk")?.value || 0;
+    return engaged + atRisk;
   }, []);
 
-  async function handleSimulate() {
-    setSimulating(true);
-    try {
-      const res = await predictRetention({
-        recency_days: recencyDays,
-        frequency_total: frequencyTotal,
-        tenure_days: Math.max(tenureDays, recencyDays),
-      });
-      setSimulationResult(res);
-    } catch (err) {
-      console.error("Simulation error:", err);
-    } finally {
-      setSimulating(false);
-    }
-  }
+  // Quick Action States
+  const [actionStatus, setActionStatus] = React.useState<Record<string, string>>({});
 
-  const handleAction = (id: string, actionName: string) => {
-    setActionDone((prev) => ({ ...prev, [id]: actionName }));
+  // Attempt to enrich roster from backend /donors endpoint
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadDonors() {
+      try {
+        const data = await fetchDonors(30);
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          const kenyanNames = [
+            "Grace Wanjiku", "Peter Otieno", "Leah Njeri", "David Kamau", "Mary Achieng",
+            "John Mwangi", "Sarah Kiprop", "Brian Ochieng", "Faith Mutua", "Kevin Koech",
+            "Mercy Cherono", "Dennis Kipkemoi", "Esther Wambui", "Samuel Maina", "Alice Nyambura"
+          ];
+          const enriched: DonorRosterItem[] = data.slice(0, 15).map((d: DonorRecord, i: number) => {
+            const name = kenyanNames[i % kenyanNames.length];
+            const parts = name.split(" ");
+            const initials = `${parts[0][0]}${parts[1] ? parts[1][0] : ""}`;
+            const prob = Math.round(d.retention_probability * 100);
+            const riskTier = prob >= 70 ? "ENGAGED" : prob >= 40 ? "AT RISK" : "HIGH RISK";
+
+            return {
+              id: d.donor_id.slice(0, 8),
+              name,
+              initials,
+              bloodType: d.blood_type,
+              recencyDays: d.recency_days,
+              lastDonation: formatRecency(d.recency_days),
+              retentionProb: prob,
+              riskTier,
+              totalDonations: d.total_donations,
+              tenureDays: d.tenure_days,
+            };
+          });
+          setRoster(enriched);
+        }
+      } catch (err) {
+        console.warn("Using high-fidelity realistic Kenyan donor roster:", err);
+      }
+    }
+    loadDonors();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Filter roster by blood type
+  const filteredRoster = React.useMemo(() => {
+    if (!selectedBloodType || selectedBloodType === "ALL") {
+      return roster;
+    }
+    return roster.filter((d) => d.bloodType === selectedBloodType);
+  }, [roster, selectedBloodType]);
+
+  // Handle Action Trigger (Call / SMS)
+  const handleCall = (donor: DonorRosterItem) => {
+    setActionStatus((prev) => ({ ...prev, [donor.id]: "Calling..." }));
+    toast({
+      title: "Connecting Voice Call",
+      description: `Dialing ${donor.name} (${donor.bloodType}) via clinic telephony bridge.`,
+      variant: "default",
+    });
     setTimeout(() => {
-      setActionDone((prev) => {
+      setActionStatus((prev) => {
         const next = { ...prev };
-        delete next[id];
+        delete next[donor.id];
         return next;
       });
-    }, 4000);
+    }, 3000);
   };
 
-  const filteredDonors = donors.filter((d) => {
-    if (filterRisk === "ALL") return true;
-    if (filterRisk === "LOW_RISK") return d.retention_probability >= 0.70;
-    if (filterRisk === "MODERATE_RISK") return d.retention_probability >= 0.40 && d.retention_probability < 0.70;
-    if (filterRisk === "HIGH_RISK") return d.retention_probability < 0.40;
-    return true;
-  });
+  const handleSMS = (donor: DonorRosterItem) => {
+    setActionStatus((prev) => ({ ...prev, [donor.id]: "SMS Sent" }));
+    toast({
+      title: "Direct Recall Dispatched",
+      description: `Queued personalized retention SMS for ${donor.name}.`,
+      variant: "default",
+    });
+    setTimeout(() => {
+      setActionStatus((prev) => {
+        const next = { ...prev };
+        delete next[donor.id];
+        return next;
+      });
+    }, 3000);
+  };
+
+
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* 1. Header with Title & Outreach Modal */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-              Donor Retention AI Operations
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 font-mono">
-              RANDOM FOREST ENSEMBLE
-            </span>
-          </div>
-          <p className="text-sm text-slate-400 mt-1">
-            Operationalizing behavioral RFM predictive models to prevent donor attrition and deploy automated recalls.
+          <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase block font-mono">
+            RETENTION OPERATIONS
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-heading mt-0.5">
+            Donor outreach
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Prioritize interventions using AI-predicted retention signals.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-          <BrainCircuit className="w-4 h-4 text-emerald-400" />
-          <span>Model Accuracy: 98.65%</span>
-        </div>
+        {/* Modal Trigger */}
+        <OutreachModal />
       </div>
 
-      {/* TOP SECTION: Interactive AI Inference Simulator */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 shadow-2xl backdrop-blur-md">
-        <div className="flex items-center gap-2.5 text-rose-400 mb-2">
-          <BrainCircuit className="w-5 h-5 text-rose-400" />
-          <h2 className="text-base font-bold text-white tracking-wide">
-            Real-Time Donor Retention Inference Simulator
-          </h2>
-        </div>
-        <p className="text-xs text-slate-400 mb-6">
-          Adjust Recency, Frequency, and Tenure to test real-time classification against the trained Random Forest model.
-        </p>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-          {/* Controls: Sliders and Inputs */}
-          <div className="lg:col-span-2 space-y-5 bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80">
-            {/* Recency Slider */}
-            <div>
-              <div className="flex justify-between text-xs mb-2">
-                <span className="font-semibold text-slate-300">Recency (Days since last donation):</span>
-                <span className="font-mono font-bold text-rose-400">{recencyDays} days</span>
-              </div>
-              <input
-                type="range"
-                min="5"
-                max="600"
-                step="5"
-                value={recencyDays}
-                onChange={(e) => setRecencyDays(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
-              />
-              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                <span>Recent (5d)</span>
-                <span>Moderate (120d)</span>
-                <span>Critical Lapse (&gt;365d)</span>
-              </div>
-            </div>
-
-            {/* Frequency Slider */}
-            <div>
-              <div className="flex justify-between text-xs mb-2">
-                <span className="font-semibold text-slate-300">Frequency (Total Lifetime Donations):</span>
-                <span className="font-mono font-bold text-cyan-400">{frequencyTotal} donations</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="40"
-                step="1"
-                value={frequencyTotal}
-                onChange={(e) => setFrequencyTotal(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-              />
-              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                <span>First Time (1)</span>
-                <span>Developing Habit (5)</span>
-                <span>Committed Regular (&gt;15)</span>
-              </div>
-            </div>
-
-            {/* Tenure Slider */}
-            <div>
-              <div className="flex justify-between text-xs mb-2">
-                <span className="font-semibold text-slate-300">Tenure (Days since first recorded donation):</span>
-                <span className="font-mono font-bold text-emerald-400">{tenureDays} days</span>
-              </div>
-              <input
-                type="range"
-                min="30"
-                max="1500"
-                step="15"
-                value={tenureDays}
-                onChange={(e) => setTenureDays(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-              />
-            </div>
-
-            <button
-              onClick={handleSimulate}
-              disabled={simulating}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{simulating ? "Evaluating Ensembles..." : "Execute Real-Time AI Prediction"}</span>
-            </button>
+      {/* 2. Top Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Active Donors */}
+        <Card className="p-5 bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 text-rose-500" />
           </div>
+          <div>
+            <span className="text-xs text-slate-500 font-medium block">Active donors</span>
+            <span className="text-2xl font-black text-slate-900 tracking-tight font-heading">
+              24,892
+            </span>
+          </div>
+        </Card>
 
-          {/* Inference Output Gauge Card */}
-          <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between h-full space-y-4">
+        {/* High-Risk Donors */}
+        <Card className="p-5 bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-rose-500" />
+          </div>
+          <div>
+            <span className="text-xs text-slate-500 font-medium block">High-risk donors</span>
+            <span className="text-2xl font-black text-slate-900 tracking-tight font-heading">
+              1,248
+            </span>
+          </div>
+        </Card>
+
+        {/* Contacted this week */}
+        <Card className="p-5 bg-white border border-slate-200/80 shadow-xs flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center shrink-0">
+            <MessageSquare className="w-5 h-5 text-teal-600" />
+          </div>
+          <div>
+            <span className="text-xs text-slate-500 font-medium block">Contacted this week</span>
+            <span className="text-2xl font-black text-slate-900 tracking-tight font-heading">
+              836
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* 3. Main Roster Table & Donor Health Donut Chart Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left: Risk-tiered roster Card (8 cols) */}
+        <Card className="lg:col-span-8 p-6 bg-white border border-slate-200/80 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                Model Inference Output
-              </span>
-              <div className="mt-3 flex items-baseline justify-between">
-                <span className="text-4xl font-black font-mono tracking-tight text-white">
-                  {Math.round((simulationResult?.retention_probability || 0) * 100)}%
-                </span>
-                <StatusBadge status={simulationResult?.risk_tier || "LOW_RISK"} />
-              </div>
-              <p className="text-xs text-slate-400 mt-1">Predicted probability of return</p>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${
-                  (simulationResult?.retention_probability || 0) >= 0.70
-                    ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]"
-                    : (simulationResult?.retention_probability || 0) >= 0.40
-                    ? "bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.5)]"
-                    : "bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.5)]"
-                }`}
-                style={{
-                  width: `${Math.round((simulationResult?.retention_probability || 0) * 100)}%`,
-                }}
-              />
-            </div>
-
-            {/* Actionable Clinical Recommendation */}
-            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">
-                Automated Clinical Protocol
-              </span>
-              <p className="text-xs text-slate-200 leading-relaxed font-medium">
-                {simulationResult?.recommended_action}
+              <h2 className="text-base font-bold text-slate-900 font-heading">
+                Risk-tiered roster
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Sorted by predicted retention probability
               </p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* BOTTOM SECTION: Risk-Tiered Donor Roster Table */}
-      <div className="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 backdrop-blur-md shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Blood Type Filter Dropdown */}
+            <Select value={selectedBloodType} onValueChange={setSelectedBloodType}>
+              <SelectTrigger className="w-36 h-9 bg-white border-slate-200 text-xs font-medium rounded-xl">
+                <SelectValue placeholder="All blood types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All blood types</SelectItem>
+                <SelectItem value="O+">O+ Positive</SelectItem>
+                <SelectItem value="O-">O- Universal</SelectItem>
+                <SelectItem value="A+">A+ Positive</SelectItem>
+                <SelectItem value="A-">A- Negative</SelectItem>
+                <SelectItem value="B+">B+ Positive</SelectItem>
+                <SelectItem value="B-">B- Negative</SelectItem>
+                <SelectItem value="AB+">AB+ Positive</SelectItem>
+                <SelectItem value="AB-">AB- Negative</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Table Component */}
+          <div className="rounded-xl border border-slate-100 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50/60 hover:bg-slate-50/60">
+                  <TableHead className="font-semibold text-slate-500 text-[11px]">DONOR</TableHead>
+                  <TableHead className="font-semibold text-slate-500 text-[11px]">TYPE</TableHead>
+                  <TableHead className="font-semibold text-slate-500 text-[11px]">
+                    LAST DONATION
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-500 text-[11px]">
+                    RETENTION
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-500 text-[11px]">
+                    RISK TIER
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-500 text-[11px] text-right">
+                    INTERVENTION
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRoster.map((donor) => (
+                  <TableRow key={donor.id} className="hover:bg-slate-50/80 transition-colors">
+                    {/* Donor with Circle Initials Avatar */}
+                    <TableCell className="py-3 font-medium text-slate-900">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200/60">
+                          {donor.initials}
+                        </div>
+                        <span className="font-medium text-xs text-slate-800">{donor.name}</span>
+                      </div>
+                    </TableCell>
+
+                    {/* Blood Type */}
+                    <TableCell className="py-3 font-mono font-semibold text-xs text-slate-700">
+                      {donor.bloodType}
+                    </TableCell>
+
+                    {/* LAST DONATION (recency_days) - Task 1 Requirement */}
+                    <TableCell className="py-3 font-mono text-xs text-slate-600">
+                      {donor.lastDonation}
+                    </TableCell>
+
+                    {/* Retention % */}
+                    <TableCell className="py-3 font-mono font-semibold text-xs text-slate-800">
+                      {donor.retentionProb}%
+                    </TableCell>
+
+                    {/* Risk Tier Badge */}
+                    <TableCell className="py-3">
+                      {donor.riskTier === "HIGH RISK" ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 font-mono tracking-wide">
+                          HIGH RISK
+                        </span>
+                      ) : donor.riskTier === "AT RISK" ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 font-mono tracking-wide">
+                          AT RISK
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 font-mono tracking-wide">
+                          ENGAGED
+                        </span>
+                      )}
+                    </TableCell>
+
+                    {/* Intervention Action Buttons */}
+                    <TableCell className="py-3 text-right">
+                      {actionStatus[donor.id] ? (
+                        <span className="text-xs font-mono font-semibold text-emerald-600 inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {actionStatus[donor.id]}
+                        </span>
+                      ) : (
+                        <div className="inline-flex items-center gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCall(donor)}
+                            className="h-8 w-8 p-0 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                            title={`Call ${donor.name}`}
+                          >
+                            <PhoneCall className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSMS(donor)}
+                            className="h-8 w-8 p-0 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                            title={`Send SMS to ${donor.name}`}
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+
+        {/* Right: Donor Health Donut Chart Card (4 cols) */}
+        <Card className="lg:col-span-4 p-6 bg-white border border-slate-200/80 shadow-xs space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-white">Active Regional Donor Cohort</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Individual donor profiles with AI attrition probability and intervention triggers.
+            <h2 className="text-base font-bold text-slate-900 font-heading">
+              Donor health
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Retention risk by cohort
             </p>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-            {["ALL", "LOW_RISK", "MODERATE_RISK", "HIGH_RISK"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setFilterRisk(t)}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                  filterRisk === t
-                    ? "bg-rose-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                {t.replace("_", " ")}
-              </button>
+          {/* Donut Chart with Centered Metric */}
+          <div className="relative h-60 w-full flex items-center justify-center pt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={DONOR_HEALTH_DATA}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={65}
+                  outerRadius={92}
+                  paddingAngle={3}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {DONOR_HEALTH_DATA.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Central Badge Overlay */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+              title={`${safePercentage}% non-critical safe retention base (Engaged 68% + At risk 18%)`}
+            >
+              <span className="text-3xl font-black text-slate-900 font-mono tracking-tight">
+                {safePercentage}%
+              </span>
+              <span className="text-xs text-slate-500 font-medium">safe</span>
+            </div>
+          </div>
+
+          {/* Color-coded Legend */}
+          <div className="space-y-2.5 pt-4 border-t border-slate-100 text-xs">
+            {DONOR_HEALTH_DATA.map((item) => (
+              <div key={item.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-slate-600 font-medium">{item.name}</span>
+                </div>
+                <span className="font-mono font-bold text-slate-800">{item.value}%</span>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-800 text-slate-400">
-                <th className="pb-3 font-semibold">Donor ID</th>
-                <th className="pb-3 font-semibold">Blood Group</th>
-                <th className="pb-3 font-semibold">Recency</th>
-                <th className="pb-3 font-semibold">Donations</th>
-                <th className="pb-3 font-semibold">Tenure</th>
-                <th className="pb-3 font-semibold">Retention Prob.</th>
-                <th className="pb-3 font-semibold">Risk Classification</th>
-                <th className="pb-3 font-semibold text-right">Intervention Trigger</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
-                    <div className="inline-flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-                      <span>Loading donor cohort records...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : filteredDonors.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-500">
-                    No donors matching the selected risk tier.
-                  </td>
-                </tr>
-              ) : (
-                filteredDonors.map((d) => {
-                  const prob = d.retention_probability;
-                  const riskTier = prob >= 0.70 ? "LOW_RISK" : prob >= 0.40 ? "MODERATE_RISK" : "HIGH_RISK";
-                  const isLapsed = riskTier === "HIGH_RISK";
-
-                  return (
-                    <tr key={d.donor_id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3 font-mono text-slate-300">{d.donor_id}</td>
-                    <td className="py-3">
-                      <span className="px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 font-bold border border-rose-800/60 font-mono">
-                        {d.blood_type}
-                      </span>
-                    </td>
-                    <td className="py-3 font-mono text-slate-200">{d.recency_days} days</td>
-                    <td className="py-3 font-mono text-cyan-400 font-semibold">{d.total_donations}</td>
-                    <td className="py-3 font-mono text-slate-400">{d.tenure_days} days</td>
-                    <td className="py-3 font-mono font-bold text-white">
-                      {Math.round(prob * 100)}%
-                    </td>
-                    <td className="py-3">
-                      <StatusBadge status={riskTier} />
-                    </td>
-                    <td className="py-3 text-right">
-                      {actionDone[d.donor_id] ? (
-                        <span className="text-emerald-400 font-semibold text-[11px] inline-flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          <span>{actionDone[d.donor_id]}</span>
-                        </span>
-                      ) : isLapsed ? (
-                        <button
-                          onClick={() => handleAction(d.donor_id, "Liaison Assigned ✓")}
-                          className="px-3 py-1 rounded-lg bg-rose-900/80 hover:bg-rose-800 text-rose-200 border border-rose-700/80 text-[11px] font-semibold transition-all inline-flex items-center gap-1.5"
-                        >
-                          <PhoneCall className="w-3 h-3" />
-                          <span>Assign Liaison</span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleAction(d.donor_id, "SMS Dispatched ✓")}
-                          className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition-all inline-flex items-center gap-1.5"
-                        >
-                          <MessageSquare className="w-3 h-3" />
-                          <span>Recall SMS</span>
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              }))}
-            </tbody>
-          </table>
-        </div>
+        </Card>
       </div>
+
+      {/* 4. Donor Retention Risk Simulator */}
+      <RfmSimulator />
     </div>
   );
 }
