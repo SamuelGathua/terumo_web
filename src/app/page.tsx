@@ -64,11 +64,18 @@ export default function LandingPage() {
           </div>
 
 
-          {/* Right Action Button — Launch Command Center */}
-          <div className="pointer-events-auto flex items-center">
+          {/* Right Action Buttons — Request Facility Pilot & Launch Command Center */}
+          <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3">
+            <button
+              onClick={() => setDemoModalOpen(true)}
+              className="hidden md:inline-flex items-center justify-center text-[11px] sm:text-xs font-heading font-semibold uppercase tracking-wider px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-slate-200 hover:text-white bg-black/40 hover:bg-black/60 border border-white/15 hover:border-white/30 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
+            >
+              <span>Request Facility Pilot</span>
+            </button>
+
             <Link
               href="/overview"
-              className="inline-flex items-center justify-center text-xs sm:text-sm font-heading font-bold uppercase tracking-wider px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white hover:bg-slate-100 text-black shadow-[0_0_30px_rgba(255,255,255,0.25)] transition-all hover:scale-105 active:scale-95"
+              className="inline-flex items-center justify-center text-[11px] sm:text-xs font-heading font-bold uppercase tracking-wider px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white hover:bg-slate-100 text-black shadow-[0_0_25px_rgba(255,255,255,0.22)] transition-all hover:scale-105 active:scale-95"
             >
               <span>Launch Command Center</span>
             </Link>
