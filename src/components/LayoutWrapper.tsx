@@ -178,14 +178,14 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header Bar */}
         <div className="md:hidden bg-white border-b border-slate-200/80 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center" title="ABIS Home">
             <Image
-              src="/abis_logo.png"
+              src="/logo.png"
               alt="ABIS Logo"
-              width={100}
-              height={30}
+              width={120}
+              height={36}
               priority
-              className="h-7 w-auto object-contain"
+              className="h-8 w-auto object-contain"
             />
           </Link>
           <button
