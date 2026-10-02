@@ -55,9 +55,10 @@ export default function LandingPage() {
                 width={220}
                 height={80}
                 priority
+                sizes="(max-width: 640px) 120px, 220px"
                 className="h-12 sm:h-14 md:h-16 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
               />
-              <span className="hidden sm:inline-block text-xs md:text-sm font-medium tracking-wide text-slate-300/90 group-hover:text-white transition-colors border-l border-white/20 pl-3 sm:pl-4">
+              <span className="hidden sm:inline-block text-xs md:text-sm font-medium tracking-wide text-slate-200 group-hover:text-white transition-colors border-l border-white/20 pl-3 sm:pl-4">
                 The Adaptive Blood Infrastructure System
               </span>
             </Link>
@@ -68,7 +69,7 @@ export default function LandingPage() {
           <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setDemoModalOpen(true)}
-              className="hidden md:inline-flex items-center justify-center text-[11px] sm:text-xs font-heading font-semibold uppercase tracking-wider px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-slate-200 hover:text-white bg-black/40 hover:bg-black/60 border border-white/15 hover:border-white/30 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
+              className="hidden md:inline-flex items-center justify-center text-[11px] sm:text-xs font-heading font-semibold uppercase tracking-wider px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-white bg-black/40 hover:bg-black/60 border border-white/20 hover:border-white/40 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
             >
               <span>Request Facility Pilot</span>
             </button>
@@ -85,21 +86,24 @@ export default function LandingPage() {
 
       {/* Full-Screen Hero Section — Clean, Cinematic, 100vh Full Viewport */}
       <section className="relative w-full h-screen min-h-screen flex items-center justify-center overflow-hidden isolate" id="horizon">
-        {/* Full-Screen Infinite Looping Arterial GIF Canvas (Pure Black, No Green Tint, No Semi-Circle) */}
+        {/* Full-Screen Infinite Looping Arterial Flow Animation (High Performance WebP with GIF Fallback) */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-black">
-          <Image
-            src="/landing_page.gif"
-            alt="ABIS 3D Arterial Blood Network Flow Simulation"
-            fill
-            unoptimized
-            priority
-            className="object-cover object-center filter contrast-125 brightness-95"
-          />
+          <picture className="w-full h-full">
+            <source srcSet="/landing_page.webp" type="image/webp" />
+            <img
+              src="/landing_page.gif"
+              alt="ABIS 3D Arterial Blood Network Flow Simulation"
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              className="w-full h-full object-cover object-center filter contrast-125 brightness-95"
+            />
+          </picture>
 
           {/* Clean Neutral Dark Vignette for Text Contrast (Top Fade for Nav Header) */}
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
 
-          {/* Gradual Green Fade from Arterial GIF into the next section (#061913) */}
+          {/* Gradual Green Fade from Arterial Canvas into the next section (#061913) */}
           <div className="absolute inset-x-0 bottom-0 h-72 sm:h-96 bg-gradient-to-t from-[#061913] via-[#061913]/85 via-45% to-transparent pointer-events-none z-10" />
         </div>
 
@@ -124,7 +128,7 @@ export default function LandingPage() {
                 From Donor Vein to Transfusion Ward.
               </h2>
 
-              <p className="text-base text-[#9cb3aa] leading-relaxed">
+              <p className="text-base text-[#b4cbbf] leading-relaxed">
                 Algorithms alone do not save lives—unbroken supply chains do. ABIS bridges high-precision
                 machine learning with frontline phlebotomy, cold-storage refrigeration, and surgical wards.
               </p>
@@ -137,9 +141,9 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-white">
-                      Strict 2°C – 6°C Cold-Chain Telemetry
+                       Strict 2°C – 6°C Cold-Chain Telemetry
                     </h3>
-                    <p className="text-xs text-[#7fa396] mt-0.5">
+                    <p className="text-xs text-[#a3c9bc] mt-0.5">
                       Sub-minute temperature logging with automated alerts when heat excursions occur during rural transport.
                     </p>
                   </div>
@@ -153,7 +157,7 @@ export default function LandingPage() {
                     <h3 className="text-sm font-semibold text-white">
                       Serology Screening Validation (s/co ≥ 10)
                     </h3>
-                    <p className="text-xs text-[#7fa396] mt-0.5">
+                    <p className="text-xs text-[#a3c9bc] mt-0.5">
                       Rigorous 98.4% positive predictive value verification ensuring 100% infection-free transfusions.
                     </p>
                   </div>
@@ -167,7 +171,7 @@ export default function LandingPage() {
                     <h3 className="text-sm font-semibold text-white">
                       Asynchronous Mobile Drive Ledger
                     </h3>
-                    <p className="text-xs text-[#7fa396] mt-0.5">
+                    <p className="text-xs text-[#a3c9bc] mt-0.5">
                       Collect donations in remote areas without internet; transactions auto-reconcile once regional hubs sync.
                     </p>
                   </div>
@@ -183,6 +187,7 @@ export default function LandingPage() {
                   alt="Clinical blood transfusion and donation venipuncture care"
                   width={800}
                   height={530}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="w-full h-[460px] object-cover filter brightness-90 contrast-110 group-hover:scale-103 transition-transform duration-700"
                 />
 
@@ -198,13 +203,13 @@ export default function LandingPage() {
       <section className="py-24 relative" id="network">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-xs uppercase font-bold tracking-widest text-[#35b398]">
+            <span className="text-xs uppercase font-bold tracking-widest text-[#4ee0c0]">
               The Operational Command Center
             </span>
             <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mt-2">
               Four Interconnected Modules in One Interface
             </h2>
-            <p className="text-sm sm:text-base text-[#9cb3aa] mt-3">
+            <p className="text-sm sm:text-base text-[#b4cbbf] mt-3">
               Explore how regional managers, laboratory technicians, and transfusion directors coordinate logistics.
             </p>
 
@@ -215,7 +220,7 @@ export default function LandingPage() {
                 className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === "forecast"
                     ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#88ada0] hover:text-white"
+                    : "text-[#b4cbbf] hover:text-white"
                 }`}
               >
                 1. Demand Forecasts
@@ -225,7 +230,7 @@ export default function LandingPage() {
                 className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === "retention"
                     ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#88ada0] hover:text-white"
+                    : "text-[#b4cbbf] hover:text-white"
                 }`}
               >
                 2. Donor Retention
@@ -235,7 +240,7 @@ export default function LandingPage() {
                 className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === "trace"
                     ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#88ada0] hover:text-white"
+                    : "text-[#b4cbbf] hover:text-white"
                 }`}
               >
                 3. Traceability
@@ -245,7 +250,7 @@ export default function LandingPage() {
                 className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   activeTab === "rebalance"
                     ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#88ada0] hover:text-white"
+                    : "text-[#b4cbbf] hover:text-white"
                 }`}
               >
                 4. Rebalancing
@@ -261,7 +266,7 @@ export default function LandingPage() {
                   <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
                     Anticipate Deficits 72 Hours in Advance
                   </h3>
-                  <p className="text-sm text-[#9cb3aa] leading-relaxed">
+                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
                     Rather than reacting to empty blood banks, ABIS projects demand shifts by hospital facility and blood group with a 95% confidence envelope.
                   </p>
                   <ul className="space-y-2 text-xs text-[#c8d9d2]">
@@ -284,7 +289,7 @@ export default function LandingPage() {
                   <div className="flex items-center justify-between pb-3 border-b border-[#2daa8f]/15">
                     <div>
                       <span className="text-xs font-bold text-white">Demand Trajectory (Kenyatta Referral)</span>
-                      <p className="text-[11px] text-[#7fa396]">Predicted vs. actual hospital transfusions</p>
+                      <p className="text-[11px] text-[#a3c9bc]">Predicted vs. actual hospital transfusions</p>
                     </div>
                     <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800/40">
                       MAPE: 8.4%
@@ -322,7 +327,7 @@ export default function LandingPage() {
                       />
                     </svg>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-[#7fa396] pt-1">
+                  <div className="flex items-center justify-between text-[11px] text-[#a3c9bc] pt-1">
                     <span className="flex items-center gap-1.5"><i className="w-3 h-1 bg-[#2daa8f] rounded inline-block" /> Forecast Trend</span>
                     <span className="flex items-center gap-1.5"><i className="w-3 h-1 bg-[#e02e48] rounded inline-block" /> Upper 95% Bound</span>
                     <span className="text-white font-mono">Net 7-Day Need: 428 units</span>
@@ -337,7 +342,7 @@ export default function LandingPage() {
                   <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
                     Protect Repeat Donor Cohorts
                   </h3>
-                  <p className="text-sm text-[#9cb3aa] leading-relaxed">
+                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
                     AI analyzes recency, frequency, and tenure vectors to detect churn risk before donors lapse, generating tailored SMS invitations.
                   </p>
                   <ul className="space-y-2 text-xs text-[#c8d9d2]">
@@ -372,7 +377,7 @@ export default function LandingPage() {
                         </span>
                         <div>
                           <strong className="text-white block">Grace Wanjiku (O+)</strong>
-                          <span className="text-[#6d9487] text-[10px]">Last donated 140 days ago</span>
+                          <span className="text-[#a3c9bc] text-[10px]">Last donated 140 days ago</span>
                         </div>
                       </div>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">
@@ -387,7 +392,7 @@ export default function LandingPage() {
                         </span>
                         <div>
                           <strong className="text-white block">Leah Njeri (A−)</strong>
-                          <span className="text-[#6d9487] text-[10px]">Last donated 85 days ago</span>
+                          <span className="text-[#a3c9bc] text-[10px]">Last donated 85 days ago</span>
                         </div>
                       </div>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800">
@@ -402,7 +407,7 @@ export default function LandingPage() {
                         </span>
                         <div>
                           <strong className="text-white block">David Kamau (O−)</strong>
-                          <span className="text-[#6d9487] text-[10px]">Last donated 28 days ago</span>
+                          <span className="text-[#a3c9bc] text-[10px]">Last donated 28 days ago</span>
                         </div>
                       </div>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
@@ -420,7 +425,7 @@ export default function LandingPage() {
                   <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
                     Uncompromising Chain-of-Custody
                   </h3>
-                  <p className="text-sm text-[#9cb3aa] leading-relaxed">
+                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
                     Track every blood bag from donor arm through centrifuges, cold room storage, and highway transport with automated breach detection.
                   </p>
                   <ul className="space-y-2 text-xs text-[#c8d9d2]">
@@ -479,7 +484,7 @@ export default function LandingPage() {
                   <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
                     Zero Blood Wastage Protocol
                   </h3>
-                  <p className="text-sm text-[#9cb3aa] leading-relaxed">
+                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
                     Surplus depots automatically route expiring units to high-volume surgical centers, guaranteeing optimal utilization before shelf-life expires.
                   </p>
                   <ul className="space-y-2 text-xs text-[#c8d9d2]">
@@ -502,24 +507,24 @@ export default function LandingPage() {
                   <div className="pb-3 border-b border-rose-800/40">
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="font-bold text-rose-400">SURPLUS-DEFICIT DISPATCH ACTION</span>
-                      <span className="font-mono text-slate-400">Highway A109 Route</span>
+                      <span className="font-mono text-slate-300">Highway A109 Route</span>
                     </div>
                     <div className="text-sm font-semibold text-white">
                       Nairobi Regional Depot ➔ Coast General Hospital
                     </div>
-                    <div className="text-xs text-[#8cb3a5] mt-1">
+                    <div className="text-xs text-[#b4cbbf] mt-1">
                       Recommended Transfer: <strong className="text-white">45 Units Whole Blood</strong>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-xs pt-1">
                     <div className="border-l-2 border-[#108f75] pl-3 py-1">
-                      <span className="text-[#6d9487] block text-[10px] uppercase tracking-wider">Nairobi Central Depot</span>
+                      <span className="text-[#a3c9bc] block text-[10px] uppercase tracking-wider">Nairobi Central Depot</span>
                       <strong className="text-white text-base font-mono block mt-0.5">2,400 u</strong>
                       <span className="text-cyan-400 block text-[10px] mt-0.5">Surplus (80% capacity)</span>
                     </div>
                     <div className="border-l-2 border-rose-500 pl-3 py-1">
-                      <span className="text-[#6d9487] block text-[10px] uppercase tracking-wider">Coast General Hospital</span>
+                      <span className="text-[#a3c9bc] block text-[10px] uppercase tracking-wider">Coast General Hospital</span>
                       <strong className="text-rose-400 text-base font-mono block mt-0.5">90 u</strong>
                       <span className="text-rose-400 block text-[10px] mt-0.5">Critical Deficit (22.5%)</span>
                     </div>
@@ -538,7 +543,7 @@ export default function LandingPage() {
             Eliminate Blood Stockouts Across Your Health Network.
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#9cb3aa] max-w-xl mx-auto mt-3 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#b4cbbf] max-w-xl mx-auto mt-3 leading-relaxed">
             Connect your blood depots, laboratories, and regional hospitals to Africa&apos;s most adaptive blood infrastructure platform.
           </p>
 
@@ -562,7 +567,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#2daa8f]/15 bg-[#030e0a] py-6 text-xs text-[#6e8d81]">
+      <footer className="border-t border-[#2daa8f]/15 bg-[#030e0a] py-6 text-xs text-[#a3c9bc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Image
@@ -570,15 +575,16 @@ export default function LandingPage() {
               alt="ABIS - Adaptive Blood Infrastructure System"
               width={280}
               height={150}
+              sizes="(max-width: 640px) 160px, 280px"
               className="h-16 sm:h-20 md:h-22 w-auto object-contain"
             />
             <span className="hidden sm:inline-block text-[#2daa8f]/30 text-lg">|</span>
-            <p className="text-xs sm:text-sm text-[#8baea1] tracking-wide text-center sm:text-left">
+            <p className="text-xs sm:text-sm text-[#b4cbbf] tracking-wide text-center sm:text-left">
               Adaptive Blood Infrastructure System · Terumo BCT Africa Hackathon 2026
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-5 text-[#8baea1] text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-5 text-[#b4cbbf] text-xs font-medium">
             <a href="#horizon" className="hover:text-white transition-colors">Intelligence</a>
             <a href="#clinical" className="hover:text-white transition-colors">Clinical Chain</a>
             <a href="#network" className="hover:text-white transition-colors">Capabilities</a>
@@ -593,7 +599,8 @@ export default function LandingPage() {
           <div className="relative w-full max-w-lg rounded-3xl bg-[#071f17] border border-[#2daa8f]/40 p-6 sm:p-8 shadow-2xl">
             <button
               onClick={() => setDemoModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-[#0d3429] text-[#86a99c] hover:text-white transition-colors"
+              aria-label="Close modal"
+              className="absolute top-5 right-5 p-2 rounded-full bg-[#0d3429] text-white hover:bg-[#134537] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -619,7 +626,7 @@ export default function LandingPage() {
                 <h3 className="font-heading text-2xl font-bold text-white">
                   Request an ABIS Demonstration
                 </h3>
-                <p className="text-xs text-[#8cb0a2]">
+                <p className="text-xs text-[#b4cbbf]">
                   Connect your blood depot or hospital transfusion department for real-time visibility.
                 </p>
 
@@ -634,7 +641,7 @@ export default function LandingPage() {
                       placeholder="Dr. Amina Mwangi"
                       value={demoFormData.name}
                       onChange={(e) => setDemoFormData({ ...demoFormData, name: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#507769] focus:outline-none focus:border-[#4ef0c9]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#88af9f] focus:outline-none focus:border-[#4ef0c9]"
                     />
                   </div>
 
@@ -648,7 +655,7 @@ export default function LandingPage() {
                       placeholder="amina.m@referral-hospital.org"
                       value={demoFormData.email}
                       onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#507769] focus:outline-none focus:border-[#4ef0c9]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#88af9f] focus:outline-none focus:border-[#4ef0c9]"
                     />
                   </div>
 
@@ -663,7 +670,7 @@ export default function LandingPage() {
                         placeholder="Nairobi National Referral"
                         value={demoFormData.facility}
                         onChange={(e) => setDemoFormData({ ...demoFormData, facility: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#507769] focus:outline-none focus:border-[#4ef0c9]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#051611] border border-[#2daa8f]/30 text-sm text-white placeholder-[#88af9f] focus:outline-none focus:border-[#4ef0c9]"
                       />
                     </div>
                     <div>
@@ -704,7 +711,8 @@ export default function LandingPage() {
           <div className="relative w-full max-w-2xl rounded-3xl bg-[#071f17] border border-[#2daa8f]/40 p-6 sm:p-8 shadow-2xl">
             <button
               onClick={() => setVideoModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-[#0d3429] text-[#86a99c] hover:text-white transition-colors"
+              aria-label="Close walkthrough modal"
+              className="absolute top-5 right-5 p-2 rounded-full bg-[#0d3429] text-white hover:bg-[#134537] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

@@ -85,6 +85,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
               width={280}
               height={150}
               priority
+              sizes="(max-width: 768px) 120px, 208px"
               className={cn(
                 "object-contain transition-all duration-200 group-hover:scale-105",
                 compact ? "h-11 w-11 object-contain" : "h-20 w-auto max-w-52"
