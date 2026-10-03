@@ -21,6 +21,7 @@ export default function LandingPage() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"forecast" | "retention" | "trace" | "rebalance">("forecast");
   const [demoFormSubmitted, setDemoFormSubmitted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [demoFormData, setDemoFormData] = useState({
     name: "",
     email: "",
@@ -28,6 +29,14 @@ export default function LandingPage() {
     role: "Medical Director",
     region: "Kenya",
   });
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +53,14 @@ export default function LandingPage() {
       <div className="pointer-events-none absolute top-[700px] -left-48 w-[700px] h-[700px] bg-[radial-gradient(circle,_rgba(224,46,72,0.08)_0%,_transparent_65%)] -z-10" />
       <div className="pointer-events-none absolute top-[1200px] -right-48 w-[800px] h-[800px] bg-[radial-gradient(circle,_rgba(45,170,143,0.09)_0%,_transparent_70%)] -z-10" />
 
-      {/* Floating Invisible Navigation Header (Strictly Matching Reference Image) */}
-      <header className="fixed top-0 inset-x-0 z-50 pointer-events-none py-6 transition-all duration-300">
+      {/* Floating Navigation Header — Sleek Frosted Dark Emerald Glass when Scrolled */}
+      <header
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "py-3 bg-[#051611]/92 backdrop-blur-xl border-b border-[#2daa8f]/20 shadow-xl shadow-black/35 pointer-events-auto"
+            : "py-6 pointer-events-none"
+        }`}
+      >
         <div className="w-full px-6 sm:px-10 lg:px-14 flex items-center justify-between relative">
           {/* Logo & Brand (ABIS Official Logo with Full Name) */}
           <div className="pointer-events-auto">
@@ -205,58 +220,62 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Interactive Command Center Capabilities Tabs */}
-      <section className="py-24 relative" id="network">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Interactive Command Center Capabilities Tabs — Clean White Background */}
+      <section className="py-20 sm:py-28 relative bg-white text-slate-900 overflow-hidden" id="network">
+        {/* Subtle decorative background ambient glows */}
+        <div className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 bg-[radial-gradient(circle,_rgba(16,143,117,0.06)_0%,_transparent_70%)]" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 w-96 h-96 bg-[radial-gradient(circle,_rgba(45,170,143,0.06)_0%,_transparent_70%)]" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-xs uppercase font-bold tracking-widest text-[#4ee0c0]">
+            <span className="text-xs uppercase font-bold tracking-widest text-[#108f75] bg-[#108f75]/10 px-3.5 py-1.5 rounded-full inline-block border border-[#108f75]/20">
               The Operational Command Center
             </span>
-            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mt-2">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mt-3 tracking-tight">
               Four Interconnected Modules in One Interface
             </h2>
-            <p className="text-sm sm:text-base text-[#b4cbbf] mt-3">
+            <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
               Explore how regional managers, laboratory technicians, and transfusion directors coordinate logistics.
             </p>
 
-            {/* Tab Selectors — Clean, Borderless Button Group */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            {/* Tab Selectors — Refined Pill Segment on White */}
+            <div className="mt-8 inline-flex p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200/80 shadow-xs flex-wrap items-center justify-center gap-1 sm:gap-2">
               <button
                 onClick={() => setActiveTab("forecast")}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   activeTab === "forecast"
-                    ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#b4cbbf] hover:text-white"
+                    ? "bg-[#108f75] text-white shadow-md shadow-[#108f75]/25"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 1. Demand Forecasts
               </button>
               <button
                 onClick={() => setActiveTab("retention")}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   activeTab === "retention"
-                    ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#b4cbbf] hover:text-white"
+                    ? "bg-[#108f75] text-white shadow-md shadow-[#108f75]/25"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 2. Donor Retention
               </button>
               <button
                 onClick={() => setActiveTab("trace")}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   activeTab === "trace"
-                    ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#b4cbbf] hover:text-white"
+                    ? "bg-[#108f75] text-white shadow-md shadow-[#108f75]/25"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 3. Traceability
               </button>
               <button
                 onClick={() => setActiveTab("rebalance")}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                   activeTab === "rebalance"
-                    ? "bg-[#108f75] text-white shadow-lg shadow-[#108f75]/30"
-                    : "text-[#b4cbbf] hover:text-white"
+                    ? "bg-[#108f75] text-white shadow-md shadow-[#108f75]/25"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
                 }`}
               >
                 4. Rebalancing
@@ -264,40 +283,40 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Tab Content Display — No Background Tiles */}
+          {/* Tab Content Display */}
           <div className="mt-10">
             {activeTab === "forecast" && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <div className="lg:col-span-5 space-y-4">
-                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900">
                     Anticipate Deficits 72 Hours in Advance
                   </h3>
-                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     Rather than reacting to empty blood banks, ABIS projects demand shifts by hospital facility and blood group with a 95% confidence envelope.
                   </p>
-                  <ul className="space-y-2 text-xs text-[#c8d9d2]">
+                  <ul className="space-y-2.5 text-xs text-slate-700">
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#4ef0c9]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Mean-reverting stochastic random walk processes</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#4ef0c9]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Redis caching layer with 15-minute TTL</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#4ef0c9]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Automated seasonal surge tracking (holidays & rains)</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="lg:col-span-7 space-y-3">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#2daa8f]/15">
+                <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.06),_0_0_1px_rgba(0,0,0,0.08)] space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
-                      <span className="text-xs font-bold text-white">Demand Trajectory (Kenyatta Referral)</span>
-                      <p className="text-[11px] text-[#a3c9bc]">Predicted vs. actual hospital transfusions</p>
+                      <span className="text-xs font-bold text-slate-900">Demand Trajectory (Kenyatta Referral)</span>
+                      <p className="text-[11px] text-slate-500">Predicted vs. actual hospital transfusions</p>
                     </div>
-                    <span className="text-xs font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800/40">
+                    <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
                       MAPE: 8.4%
                     </span>
                   </div>
@@ -306,22 +325,22 @@ export default function LandingPage() {
                   <div className="h-52 w-full pt-2">
                     <svg viewBox="0 0 500 160" preserveAspectRatio="none" className="w-full h-full">
                       {[30, 70, 110, 140].map((y) => (
-                        <line key={y} x1="30" x2="490" y1={y} y2={y} stroke="#10382d" strokeWidth="1" />
+                        <line key={y} x1="30" x2="490" y1={y} y2={y} stroke="#f1f5f9" strokeWidth="1" />
                       ))}
                       <defs>
-                        <linearGradient id="tabForecastGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#108f75" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#108f75" stopOpacity="0" />
+                        <linearGradient id="tabForecastGradLight" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#108f75" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#108f75" stopOpacity="0.0" />
                         </linearGradient>
                       </defs>
                       <path
                         d="M30,110 C80,95 120,105 170,80 C220,60 270,75 320,45 C380,25 430,35 490,15 L490,150 L30,150 Z"
-                        fill="url(#tabForecastGrad)"
+                        fill="url(#tabForecastGradLight)"
                       />
                       <path
                         d="M30,110 C80,95 120,105 170,80 C220,60 270,75 320,45 C380,25 430,35 490,15"
                         fill="none"
-                        stroke="#2daa8f"
+                        stroke="#108f75"
                         strokeWidth="3"
                       />
                       <path
@@ -333,10 +352,10 @@ export default function LandingPage() {
                       />
                     </svg>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-[#a3c9bc] pt-1">
-                    <span className="flex items-center gap-1.5"><i className="w-3 h-1 bg-[#2daa8f] rounded inline-block" /> Forecast Trend</span>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                    <span className="flex items-center gap-1.5"><i className="w-3 h-1 bg-[#108f75] rounded inline-block" /> Forecast Trend</span>
                     <span className="flex items-center gap-1.5"><i className="w-3 h-1 bg-[#e02e48] rounded inline-block" /> Upper 95% Bound</span>
-                    <span className="text-white font-mono">Net 7-Day Need: 428 units</span>
+                    <span className="text-slate-900 font-mono font-semibold">Net 7-Day Need: 428 units</span>
                   </div>
                 </div>
               </div>
@@ -345,78 +364,78 @@ export default function LandingPage() {
             {activeTab === "retention" && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <div className="lg:col-span-5 space-y-4">
-                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900">
                     Protect Repeat Donor Cohorts
                   </h3>
-                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     AI analyzes recency, frequency, and tenure vectors to detect churn risk before donors lapse, generating tailored SMS invitations.
                   </p>
-                  <ul className="space-y-2 text-xs text-[#c8d9d2]">
+                  <ul className="space-y-2.5 text-xs text-slate-700">
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#ff6b81]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Automated risk tiering (Engaged, At Risk, High Risk)</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#ff6b81]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>One-click SMS dispatch to targeted rare blood donors</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#ff6b81]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Ethical opt-out and regional communication compliance</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="lg:col-span-7 space-y-3">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#2daa8f]/15">
-                    <span className="text-xs font-bold text-white">Donor Attrition Risk Tiers</span>
-                    <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded">
+                <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.06),_0_0_1px_rgba(0,0,0,0.08)] space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-900">Donor Attrition Risk Tiers</span>
+                    <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
                       86% Safe Retention
                     </span>
                   </div>
 
-                  <div className="divide-y divide-[#2daa8f]/15">
+                  <div className="divide-y divide-slate-100">
                     <div className="py-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-full bg-[#108f75] text-white flex items-center justify-center font-bold text-[10px]">
+                        <span className="w-8 h-8 rounded-full bg-[#108f75] text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
                           GW
                         </span>
                         <div>
-                          <strong className="text-white block">Grace Wanjiku (O+)</strong>
-                          <span className="text-[#a3c9bc] text-[10px]">Last donated 140 days ago</span>
+                          <strong className="text-slate-900 block font-semibold">Grace Wanjiku (O+)</strong>
+                          <span className="text-slate-500 text-[10px]">Last donated 140 days ago</span>
                         </div>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
                         High Risk · 18% Score
                       </span>
                     </div>
 
                     <div className="py-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-full bg-[#35b398] text-white flex items-center justify-center font-bold text-[10px]">
+                        <span className="w-8 h-8 rounded-full bg-[#35b398] text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
                           LN
                         </span>
                         <div>
-                          <strong className="text-white block">Leah Njeri (A−)</strong>
-                          <span className="text-[#a3c9bc] text-[10px]">Last donated 85 days ago</span>
+                          <strong className="text-slate-900 block font-semibold">Leah Njeri (A−)</strong>
+                          <span className="text-slate-500 text-[10px]">Last donated 85 days ago</span>
                         </div>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                         At Risk · 48% Score
                       </span>
                     </div>
 
                     <div className="py-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-full bg-[#2daa8f] text-white flex items-center justify-center font-bold text-[10px]">
+                        <span className="w-8 h-8 rounded-full bg-[#2daa8f] text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
                           DK
                         </span>
                         <div>
-                          <strong className="text-white block">David Kamau (O−)</strong>
-                          <span className="text-[#a3c9bc] text-[10px]">Last donated 28 days ago</span>
+                          <strong className="text-slate-900 block font-semibold">David Kamau (O−)</strong>
+                          <span className="text-slate-500 text-[10px]">Last donated 28 days ago</span>
                         </div>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         Engaged · 76% Score
                       </span>
                     </div>
@@ -428,56 +447,56 @@ export default function LandingPage() {
             {activeTab === "trace" && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <div className="lg:col-span-5 space-y-4">
-                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900">
                     Uncompromising Chain-of-Custody
                   </h3>
-                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     Track every blood bag from donor arm through centrifuges, cold room storage, and highway transport with automated breach detection.
                   </p>
-                  <ul className="space-y-2 text-xs text-[#c8d9d2]">
+                  <ul className="space-y-2.5 text-xs text-slate-700">
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#6fe3c8]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Automated quarantine upon temperature excursions</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#6fe3c8]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>GPS route tracking with transit vehicle telemetry</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#6fe3c8]" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Full audit trail ready for WHO and national regulators</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="lg:col-span-7 space-y-3">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#2daa8f]/15">
-                    <span className="text-xs font-bold text-white">Live Logistics Timeline</span>
-                    <span className="text-xs text-rose-400 font-semibold flex items-center gap-1">
+                <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.06),_0_0_1px_rgba(0,0,0,0.08)] space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <span className="text-xs font-bold text-slate-900">Live Logistics Timeline</span>
+                    <span className="text-xs text-rose-600 font-semibold flex items-center gap-1 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-md">
                       <AlertTriangle className="w-3.5 h-3.5" /> 1 Excursion Flagged
                     </span>
                   </div>
 
-                  <div className="space-y-1 font-mono text-xs divide-y divide-[#2daa8f]/15">
+                  <div className="space-y-1 font-mono text-xs divide-y divide-slate-100">
                     <div className="py-2.5 flex items-center justify-between">
-                      <div>
-                        <span className="text-[#5eead4]">08:42</span> · Unit BLD-90218 received at Kenyatta Cold Room
+                      <div className="text-slate-800">
+                        <span className="text-[#0d9488] font-bold">08:42</span> · Unit BLD-90218 received at Kenyatta Cold Room
                       </div>
-                      <span className="text-emerald-400 font-bold">4.2°C OK</span>
+                      <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-bold">4.2°C OK</span>
                     </div>
 
-                    <div className="py-2.5 flex items-center justify-between text-rose-300">
+                    <div className="py-2.5 flex items-center justify-between bg-rose-50/60 px-2 rounded-lg text-rose-900">
                       <div>
-                        <span className="text-rose-400 font-semibold">08:31</span> · Temp excursion detected in Transit #TR-2048
+                        <span className="text-rose-600 font-bold">08:31</span> · Temp excursion detected in Transit #TR-2048
                       </div>
-                      <span className="text-rose-400 font-bold">7.2°C BREACH</span>
+                      <span className="text-rose-700 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded font-bold">7.2°C BREACH</span>
                     </div>
 
                     <div className="py-2.5 flex items-center justify-between">
-                      <div>
-                        <span className="text-[#5eead4]">08:18</span> · Shipment departed Nakuru Regional Hub (84 units)
+                      <div className="text-slate-800">
+                        <span className="text-[#0d9488] font-bold">08:18</span> · Shipment departed Nakuru Regional Hub (84 units)
                       </div>
-                      <span className="text-cyan-400 font-bold">IN TRANSIT</span>
+                      <span className="text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded font-bold">IN TRANSIT</span>
                     </div>
                   </div>
                 </div>
@@ -487,52 +506,52 @@ export default function LandingPage() {
             {activeTab === "rebalance" && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 <div className="lg:col-span-5 space-y-4">
-                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-slate-900">
                     Zero Blood Wastage Protocol
                   </h3>
-                  <p className="text-sm text-[#b4cbbf] leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     Surplus depots automatically route expiring units to high-volume surgical centers, guaranteeing optimal utilization before shelf-life expires.
                   </p>
-                  <ul className="space-y-2 text-xs text-[#c8d9d2]">
+                  <ul className="space-y-2.5 text-xs text-slate-700">
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-cyan-400" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Mathematical surplus-to-deficit matching algorithm</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-cyan-400" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Real-time hospital inventory fill ratios</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-cyan-400" />
+                      <Check className="w-4 h-4 text-[#108f75]" />
                       <span>Automated courier dispatch routing</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="pb-3 border-b border-rose-800/40">
+                <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.06),_0_0_1px_rgba(0,0,0,0.08)] space-y-4">
+                  <div className="pb-3 border-b border-rose-200/70">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-bold text-rose-400">SURPLUS-DEFICIT DISPATCH ACTION</span>
-                      <span className="font-mono text-slate-300">Highway A109 Route</span>
+                      <span className="font-bold text-rose-600">SURPLUS-DEFICIT DISPATCH ACTION</span>
+                      <span className="font-mono text-slate-500">Highway A109 Route</span>
                     </div>
-                    <div className="text-sm font-semibold text-white">
+                    <div className="text-sm font-semibold text-slate-900">
                       Nairobi Regional Depot ➔ Coast General Hospital
                     </div>
-                    <div className="text-xs text-[#b4cbbf] mt-1">
-                      Recommended Transfer: <strong className="text-white">45 Units Whole Blood</strong>
+                    <div className="text-xs text-slate-600 mt-1">
+                      Recommended Transfer: <strong className="text-slate-900 font-semibold">45 Units Whole Blood</strong>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-xs pt-1">
-                    <div className="border-l-2 border-[#108f75] pl-3 py-1">
-                      <span className="text-[#a3c9bc] block text-[10px] uppercase tracking-wider">Nairobi Central Depot</span>
-                      <strong className="text-white text-base font-mono block mt-0.5">2,400 u</strong>
-                      <span className="text-cyan-400 block text-[10px] mt-0.5">Surplus (80% capacity)</span>
+                    <div className="border-l-4 border-[#108f75] bg-slate-50 p-3.5 rounded-r-xl">
+                      <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Nairobi Central Depot</span>
+                      <strong className="text-slate-900 text-base font-mono block mt-0.5">2,400 u</strong>
+                      <span className="text-emerald-700 block text-[10px] font-semibold mt-0.5">Surplus (80% capacity)</span>
                     </div>
-                    <div className="border-l-2 border-rose-500 pl-3 py-1">
-                      <span className="text-[#a3c9bc] block text-[10px] uppercase tracking-wider">Coast General Hospital</span>
-                      <strong className="text-rose-400 text-base font-mono block mt-0.5">90 u</strong>
-                      <span className="text-rose-400 block text-[10px] mt-0.5">Critical Deficit (22.5%)</span>
+                    <div className="border-l-4 border-rose-500 bg-rose-50/50 p-3.5 rounded-r-xl">
+                      <span className="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Coast General Hospital</span>
+                      <strong className="text-rose-700 text-base font-mono block mt-0.5">90 u</strong>
+                      <span className="text-rose-600 block text-[10px] font-semibold mt-0.5">Critical Deficit (22.5%)</span>
                     </div>
                   </div>
                 </div>
@@ -543,7 +562,7 @@ export default function LandingPage() {
       </section>
 
       {/* Call to Action Section — Compact, Direct, No Background Tile */}
-      <section className="py-10 sm:py-14 relative text-center">
+      <section className="py-16 sm:py-24 relative text-center bg-[#051611]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
             Eliminate Blood Stockouts Across Your Health Network.
