@@ -14,6 +14,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import HeroVesselAnimation from "@/components/HeroVesselAnimation";
 
 export default function LandingPage() {
   const [demoModalOpen, setDemoModalOpen] = useState(false);
@@ -84,9 +85,13 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Full-Screen Hero Section — Clean, Cinematic, 100vh Full Viewport */}
-      <section className="relative w-full h-screen min-h-screen flex items-center justify-center overflow-hidden isolate" id="horizon">
-        {/* Full-Screen Infinite Looping Arterial Flow Animation (High Performance WebP with GIF Fallback) */}
+      {/* Full-Screen Hero Section — Clean, Cinematic, 115vh Extended Viewport */}
+      <section className="relative w-full h-[115vh] min-h-[115vh] flex items-center justify-center overflow-hidden isolate" id="horizon">
+        {/* WebGL 3D Blood Vessel Hero Animation */}
+        <HeroVesselAnimation />
+
+        {/* Legacy GIF/WebP background commented out for performance isolation */}
+        {/*
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-black">
           <picture className="w-full h-full">
             <source srcSet="/landing_page.webp" type="image/webp" />
@@ -99,19 +104,20 @@ export default function LandingPage() {
               className="w-full h-full object-cover object-center filter contrast-125 brightness-95"
             />
           </picture>
-
-          {/* Clean Neutral Dark Vignette for Text Contrast (Top Fade for Nav Header) */}
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
-
-          {/* Gradual Green Fade from Arterial Canvas into the next section (#061913) */}
-          <div className="absolute inset-x-0 bottom-0 h-72 sm:h-96 bg-gradient-to-t from-[#061913] via-[#061913]/85 via-45% to-transparent pointer-events-none z-10" />
         </div>
+        */}
+
+        {/* Clean Neutral Dark Vignette for Text Contrast (Top Fade for Nav Header) */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
+
+        {/* Pushed below the hero fold: smooth transition into the Clinical Section (#061913) without washing over the hero view */}
+        <div className="absolute inset-x-0 bottom-0 h-32 sm:h-40 md:h-48 bg-gradient-to-t from-[#061913] via-[#061913]/60 via-30% to-transparent pointer-events-none z-10" />
 
         {/* Hero Title — EXACTLY IN THE VERTICAL & HORIZONTAL MIDDLE OF THE SCREEN */}
         <div className="relative z-10 text-center max-w-5xl mx-auto px-4 select-none">
           <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.05] drop-shadow-[0_4px_45px_rgba(0,0,0,0.95)]">
             Every unit of blood,
-            <span className="block mt-1 sm:mt-2 text-[#6fe3c8]">
+            <span className="block mt-1 sm:mt-2 text-[#2daa8f] drop-shadow-[0_0_35px_rgba(45,170,143,0.35)]">
               Exactly where it&apos;s needed.
             </span>
           </h1>
